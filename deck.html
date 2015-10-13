@@ -156,8 +156,8 @@
         var cursorX = (e.clientX || e.touches[0].clientX)-62.5,
             cursorY = (e.clientY || e.touches[0].clientY)-87.5,
             element = document.querySelectorAll('[data-drag="'+selected+'"]')[0];
-            element.style.top = cursorY+'px'
-            element.style.left = cursorX+'px'
+        element.style.top = cursorY+'px'
+        element.style.left = cursorX+'px'
       }
     }
     function release(e){
