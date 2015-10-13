@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html manifest=deck.html>
+<head>
+  <meta charset=utf-8>
+  <meta name=apple-mobile-web-app-capable content=yes>
+  <meta name=viewport content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1">
+  <title>Deck of Cards</title>
+  <style>
+    * {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    html, body {
+      background: darkgreen;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      overflow: hidden;
+      box-shadow: inset rgba(0,0,0,.5) 0 0 200px;
+    }
+    body {
+      -webkit-perspective: 1000px;
+      -ms-perspective: 1000px;
+      perspective: 1000px;
+    }
+    article {
+      position: absolute;
+      z-index: 100;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -o-user-select: none;
+      user-select: none;
+      cursor: pointer;
+      -webkit-transform-style: preserve-3d;
+      -ms-transform-style: preserve-3d;
+      transform-style: preserve-3d;
+      -webkit-transition: transform 1s;
+      transition: transform 1s;
+      -ms-transform: rotateY(180deg);
+      -ms-transform: rotateY(180deg);
+      transform: rotateY(180deg);
+      color: transparent;
+      background: red;
+      border-radius: 10px;
+      box-shadow: inset darkred 0 0 50px, rgba(0,0,0,1) 0 0 1px, rgba(0,0,0,.05) 0 10px 15px;
+      border: 7px solid white;
+      margin: 0;
+      padding: 0;
+      width: 125px;
+      height: 175px;
+    }
+    h2 {
+      margin: .75em 0;
+      font-size: 48pt;
+      line-height: 1.2;
+      text-align: center;
+      pointer-events: none;
+    }
+    small {
+      margin: 0;
+      font-size: 14pt;
+      line-height: 1;
+      text-align: center;
+      pointer-events: none;
+      position: absolute;
+      top: 5px;
+      left: 5px;
+    }
+    input {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: auto;
+      opacity: 0;
+      transition: opacity .2s ease-in-out;
+    }
+    article:hover input {
+      opacity: 1;
+    }
+    [data-flip=flipped] {
+      color: black;
+      background: white;
+      -ms-transform: rotateY(0deg);
+      -ms-transform: rotateY(0deg);
+      transform: rotateY(0deg);
+      border: 1px solid rgba(0,0,0,.1);
+      box-shadow: inset #eee 0 0 30px, rgba(0,0,0,.5) 0 0 1px, rgba(0,0,0,.05) 0 10px 15px;
+    }
+    [data-flip=flipped] input {
+      top: 1px;
+      right: 1px;
+      left: auto;
+    }
+    [data-flip=flipped][data-suit=♥],
+    [data-flip=flipped][data-suit=♦] {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    var suit = ['♥','♦','♠','♣'],
+        card = ['A',2,3,4,5,6,7,8,9,10,'J','Q','K'],
+        shuffle = [],
+        selected = '',
+        size = 0,
+        index = 100,
+        x = 10,
+        y = 10;
+    function buildDeck(){
+      for (i=0;i<suit.length;i++){
+        for (j=0;j<card.length;j++){
+          shuffle.push([suit[i],card[j]])
+          size = shuffle.length
+        }
+      }
+      for (k=0;k<size;k++){
+        var pick = Math.floor(Math.random()*shuffle.length),
+            paper = document.createElement('article');
+        paper.innerHTML = '\
+          <input type=button onclick=flip(this.parentNode) ontouchstart=flip(this.parentNode)>\
+          <small>'+shuffle[pick][1]+shuffle[pick][0]+'</small>\
+          <h2>'+shuffle[pick][1]+shuffle[pick][0]+'</h2>';
+        paper.setAttribute('data-suit',shuffle[pick][0])
+        paper.setAttribute('data-card',shuffle[pick][1])
+        shuffle.splice(pick,1)
+        paper.style.top = y+'px'
+        paper.style.left = x+'px'
+        document.body.appendChild(paper)
+        paper.addEventListener('mousedown',click)
+        paper.addEventListener('touchstart',click)
+        paper.addEventListener('mousemove',drag)
+        paper.addEventListener('touchmove',drag)
+        paper.addEventListener('mouseup',release)
+        paper.addEventListener('touchend',release)
+        y = y+2
+        x = x+1
+      }
+    }
+    function click(e){
+      e.preventDefault();
+      if (e.target.nodeName = 'article'){
+        selected = Date.now()
+        e.target.setAttribute('data-drag',selected)
+        e.target.style.zIndex = index++
+      } else if (e.target.nodeName = 'body'){
+        selected = ''
+      }
+    }
+    function drag(e){
+      e.preventDefault();
+      if (selected !== ''){
+        var cursorX = (e.clientX || e.touches[0].clientX)-62.5,
+            cursorY = (e.clientY || e.touches[0].clientY)-87.5,
+            element = document.querySelectorAll('[data-drag="'+selected+'"]')[0];
+            element.style.top = cursorY+'px'
+            element.style.left = cursorX+'px'
+      }
+    }
+    function release(e){
+      element = document.querySelectorAll('[data-drag="'+selected+'"]')[0];
+      selected = ''
+    }
+    function flip(paper){
+      if(paper.getAttribute('data-flip') == 'flipped'){
+        paper.setAttribute('data-flip','')
+      } else {
+        paper.setAttribute('data-flip','flipped')
+      }
+    }
+    buildDeck()
+    eval(unescape(escape('♶♡♲☠♩☽♤♯♣♵♭♥♮♴☮♣♲♥♡♴♥♅♬♥♭♥♮♴☨☧♣♡♮♶♡♳☧☩☬♣☽♩☮♧♥♴♃♯♮♴♥♸♴☨☧☲♤☧☩☬♦☽♤♯♣♵♭♥♮♴☮♣♲♥♡♴♥♅♬♥♭♥♮♴☨☧♬♩♮♫☧☩☬♭☽♤♯♣♵♭♥♮♴☮♣♲♥♡♴♥♅♬♥♭♥♮♴☨☧♬♩♮♫☧☩☻♩☮♷♩♤♴♨☽☲☰☰☻♩☮♨♥♩♧♨♴☽☲☰☰☻♣☮♦♩♬♬♓♴♹♬♥☽☧♤♡♲♫♧♲♥♥♮☧☻♣☮♢♥♧♩♮♐♡♴♨☨☩☻♣☮♭♯♶♥♔♯☨☱☰☬☰☩☻♣☮♬♩♮♥♔♯☨☱☹☰☬☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☲☰☰☬☰☬☲☰☰☬☱☰☩☻♣☮♬♩♮♥♔♯☨☲☰☰☬☱☹☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☲☰☰☬☲☰☰☬☱☹☰☬☲☰☰☩☻♣☮♬♩♮♥♔♯☨☱☰☬☲☰☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☰☬☲☰☰☬☰☬☱☹☰☩☻♣☮♬♩♮♥♔♯☨☰☬☱☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☰☬☰☬☱☰☬☰☩☻♣☮♣♬♯♳♥♐♡♴♨☨☩☻♣☮♦♩♬♬☨☩☻♣☮♦♩♬♬♓♴♹♬♥☽☧♷♨♩♴♥☧☻♣☮♢♥♧♩♮♐♡♴♨☨☩☻♣☮♭♯♶♥♔♯☨☴☵☬☲☰☩☻♣☮♬♩♮♥♔♯☨☱☵☵☬☲☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☱☶☰☬☲☰☬☱☶☰☬☲☵☩☻♣☮♬♩♮♥♔♯☨☱☶☰☬☱☷☵☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☱☶☰☬☱☸☰☬☱☵☵☬☱☸☰☩☻♣☮♬♩♮♥♔♯☨☴☵☬☱☸☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☴☰☬☱☸☰☬☴☰☬☱☷☵☩☻♣☮♬♩♮♥♔♯☨☴☰☬☲☵☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☴☰☬☲☰☬☴☵☬☲☰☩☻♣☮♣♬♯♳♥♐♡♴♨☨☩☻♣☮♦♩♬♬☨☩☻♶♡♲☠♧☠☽☠♣☮♣♲♥♡♴♥♒♡♤♩♡♬♇♲♡♤♩♥♮♴☨☱☰☰☬☱☰☰☬☱☰☰☬☱☰☰☬☱☰☰☬☲☵☩☻♧☮♡♤♤♃♯♬♯♲♓♴♯♰☨☰☬☧♤♡♲♫♲♥♤☧☩☻♧☮♡♤♤♃♯♬♯♲♓♴♯♰☨☱☬☧♲♥♤☧☩☻♣☮♦♩♬♬♓♴♹♬♥☠☽☠♧☻♣☮♢♥♧♩♮♐♡♴♨☨☩☻♣☮♭♯♶♥♔♯☨☵☵☬☳☰☩☻♣☮♬♩♮♥♔♯☨☱☴☵☬☳☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☱☵☰☬☳☰☬☱☵☰☬☳☵☩☻♣☮♬♩♮♥♔♯☨☱☵☰☬☱☶☵☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☱☵☰☬☱☷☰☬☱☴☵☬☱☷☰☩☻♣☮♬♩♮♥♔♯☨☵☵☬☱☷☰☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☵☰☬☱☷☰☬☵☰☬☱☶☵☩☻♣☮♬♩♮♥♔♯☨☵☰☬☳☵☩☻♣☮♱♵♡♤♲♡♴♩♣♃♵♲♶♥♔♯☨☵☰☬☳☰☬☵☵☬☳☰☩☻♣☮♣♬♯♳♥♐♡♴♨☨☩☻♣☮♦♩♬♬☨☩☻♦☮♴♹♰♥☽☧♩♭♡♧♥☯♸☭♩♣♯♮☧☻♦☮♲♥♬☽☧♳♨♯♲♴♣♵♴☠♩♣♯♮☧☻♭☮♲♥♬☽☧♡♰♰♬♥☭♴♯♵♣♨☭♩♣♯♮☧☻♦☮♨♲♥♦☽♭☮♨♲♥♦☽♩☮♴♯♄♡♴♡♕♒♌☨☧♩♭♡♧♥☯♰♮♧☧☩☻♤♯♣♵♭♥♮♴☮♧♥♴♅♬♥♭♥♮♴♳♂♹♔♡♧♎♡♭♥☨☧♨♥♡♤☧☩♛☰♝☮♡♰♰♥♮♤♃♨♩♬♤☨♦☩☻♤♯♣♵♭♥♮♴☮♧♥♴♅♬♥♭♥♮♴♳♂♹♔♡♧♎♡♭♥☨☧♨♥♡♤☧☩♛☰♝☮♡♰♰♥♮♤♃♨♩♬♤☨♭☩☻').replace(/u../g,'')))
+  </script>
+</body>
+</html>
